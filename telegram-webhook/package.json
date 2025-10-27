@@ -1,0 +1,17 @@
+{
+  "name": "telegram-webhook",
+  "version": "1.0.0",
+  "description": "Telegram webhook handler for admin replies",
+  "main": "telegram-webhook.js",
+  "scripts": {
+    "build": "npm install && esbuild telegram-webhook-fixed.js --bundle --platform=node --format=cjs --outfile=telegram-webhook.js",
+    "deploy": "npm run build && tar -czf deploy.tar.gz telegram-webhook.js package.json && curl -X POST 'https://syd.cloud.appwrite.io/v1/functions/telegram-webhook/deployments' -H 'X-Appwrite-Project: 68fd7edd003351068add' -H 'X-Appwrite-Key: standard_7529c04c300a459b2b4b84a7e7e9e531cda00be40be422e5f6e7dfa249f35605f00a5896e5a599cd4fb824ad47e48185e0ee880c45a8ac2d48b4f2222a32b9844f76bbf0c42251989f6e7e5a6edc41026a28174f536780594792dfc46b1360c00a2f9389fc18ba1d2c929b7dad6dc37a2e31d46524511cb30046eb6308ca111c' -F 'code=@deploy.tar.gz' -F 'activate=true'",
+    "test": "curl -X POST 'https://syd.cloud.appwrite.io/v1/functions/telegram-webhook/executions' -H 'X-Appwrite-Project: 68fd7edd003351068add' -H 'X-Appwrite-Key: standard_7529c04c300a459b2b4b84a7e7e9e531cda00be40be422e5f6e7dfa249f35605f00a5896e5a599cd4fb824ad47e48185e0ee880c45a8ac2d48b4f2222a32b9844f76bbf0c42251989f6e7e5a6edc41026a28174f536780594792dfc46b1360c00a2f9389fc18ba1d2c929b7dad6dc37a2e31d46524511cb30046eb6308ca111c'"
+  },
+  "dependencies": {
+    "node-appwrite": "^14.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
+  }
+}
