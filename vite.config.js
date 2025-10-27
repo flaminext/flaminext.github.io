@@ -6,6 +6,6 @@ import { ghPages } from "vite-plugin-gh-pages";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/',
+  base: "/",
   plugins: [react(), tanstackRouter(), tailwindcss(), ghPages()],
 });

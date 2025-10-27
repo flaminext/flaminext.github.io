@@ -7,6 +7,7 @@ export default function Portfolio() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState([0, 0, 0]);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   const portfolioItems = [
     {
@@ -90,16 +91,18 @@ export default function Portfolio() {
   );
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkDevice = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
     };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    checkDevice();
+    window.addEventListener("resize", checkDevice);
+    return () => window.removeEventListener("resize", checkDevice);
   }, []);
 
   useEffect(() => {
-    if (!isMobile) {
+    if (!isMobile && !isTablet) {
       const unsubscribe = scrollYProgress.on("change", (progress) => {
         if (progress < 0.35) setActiveIndex(0);
         else if (progress < 0.65) setActiveIndex(1);
@@ -107,7 +110,7 @@ export default function Portfolio() {
       });
       return unsubscribe;
     }
-  }, [scrollYProgress, isMobile]);
+  }, [scrollYProgress, isMobile, isTablet]);
 
   const handleNextImage = (projectIndex) => {
     setCurrentImageIndex((prev) => {
@@ -388,6 +391,124 @@ export default function Portfolio() {
             Swipe left or right to navigate
           </p>
         </div>
+      ) : isTablet ? (
+        // Tablet Version - Side by Side Compact
+        <div className="py-16 px-6">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <span className="px-4 py-2 bg-linear-to-r from-blue-500 to-purple-500 text-white rounded-full text-sm font-bold uppercase tracking-wider inline-block mb-4">
+              Our Work
+            </span>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Portfolio Showcase
+            </h2>
+            <p className="text-base text-gray-600 max-w-lg mx-auto">
+              Discover our innovative solutions and successful projects
+            </p>
+          </div>
+
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {portfolioItems.map((item, index) => (
+              <motion.div
+                key={item.title}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {/* Image */}
+                <div className="relative h-48">
+                  <img
+                    src={item.images[currentImageIndex[index]]}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div
+                    className={`absolute inset-0 bg-linear-to-br ${item.color} opacity-20`}
+                  />
+                  {/* Category Badge */}
+                  <div className="absolute top-3 left-3">
+                    <span
+                      className={`px-3 py-1 bg-linear-to-r ${item.color} text-white rounded-full text-xs font-bold uppercase`}
+                    >
+                      {item.category}
+                    </span>
+                  </div>
+
+                  {/* Image Navigation */}
+                  {item.images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => handlePrevImage(index)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/70 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-70 hover:opacity-100 transition-all duration-300 z-10"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="w-4 h-4 text-gray-800" />
+                      </button>
+
+                      <button
+                        onClick={() => handleNextImage(index)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/70 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-70 hover:opacity-100 transition-all duration-300 z-10"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="w-4 h-4 text-gray-800" />
+                      </button>
+
+                      {/* Dot Indicators */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {item.images.map((_, imgIndex) => (
+                          <button
+                            key={imgIndex}
+                            onClick={() => {
+                              setCurrentImageIndex((prev) => {
+                                const newIndexes = [...prev];
+                                newIndexes[index] = imgIndex;
+                                return newIndexes;
+                              });
+                            }}
+                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                              imgIndex === currentImageIndex[index]
+                                ? "bg-white w-4"
+                                : "bg-white/50 hover:bg-white/70"
+                            }`}
+                            aria-label={`Go to image ${imgIndex + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                    {item.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {item.tags.slice(0, 2).map((tag, tagIndex) => (
+                      <span
+                        key={tagIndex}
+                        className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Image Counter */}
+                  <div className="text-xs text-gray-500">
+                    {item.images.length} Images
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       ) : (
         // Desktop Version
         <>
@@ -596,10 +717,10 @@ export default function Portfolio() {
 
             {/* Portfolio Content */}
             <div className="container mx-auto px-4 sm:px-6 w-full">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-16 items-center max-w-7xl mx-auto">
                 {/* LEFT SIDE - Stacked Images */}
                 <div className="relative order-2 lg:order-1">
-                  <div className="relative w-full max-w-lg mx-auto h-[400px] sm:h-[450px] md:h-[500px]">
+                  <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg mx-auto h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
                     {/* Image 1 */}
                     <ImageCard
                       images={portfolioItems[0].images}
